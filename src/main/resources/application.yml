@@ -1,0 +1,8 @@
+server:
+  port: 8181
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgres://db:5432/jwt_auth_app_db
+    username: dbuser
+    password: dbpassword
