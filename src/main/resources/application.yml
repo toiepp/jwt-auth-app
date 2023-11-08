@@ -5,9 +5,9 @@ spring:
     allow-circular-references: true
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: mikholskiy
-    password: spflmk7q
+    url: jdbc:postgresql://db:5432/jwt_auth_app_db
+    username: dbuser
+    password: dbpassword
   jpa:
     hibernate:
       ddl-auto: create-drop
