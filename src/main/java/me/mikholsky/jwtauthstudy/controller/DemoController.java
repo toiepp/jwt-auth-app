@@ -15,16 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class DemoController {
     @GetMapping
     public ResponseEntity<String> sayHello() {
-        SecurityContext context = SecurityContextHolder.getContext();
-
-        Authentication authentication = context.getAuthentication();
-
-        System.out.println(authentication);
-
-        Object principal = authentication.getPrincipal();
-
-        System.out.println(principal);
-
         return ResponseEntity.ok("I'm secured!");
     }
 }
