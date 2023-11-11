@@ -3,7 +3,6 @@ package me.mikholsky.jwtauthstudy.config.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.orm.hibernate5.SpringSessionContext;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -21,11 +20,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
-    private JwtAuthenticationFilter jwtAuthFilter;
+    private OncePerRequestJwtAuthenticationFilter jwtAuthFilter;
     private UserDetailsService userDetailsService;
 
     @Autowired
-    public SecurityConfiguration setJwtAuthFilter(JwtAuthenticationFilter jwtAuthFilter) {
+    public SecurityConfiguration setJwtAuthFilter(OncePerRequestJwtAuthenticationFilter jwtAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
         return this;
     }

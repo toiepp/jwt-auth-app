@@ -2,19 +2,23 @@ package me.mikholsky.jwtauthstudy.service;
 
 import lombok.RequiredArgsConstructor;
 import me.mikholsky.jwtauthstudy.controller.body.AuthenticationRequest;
-import me.mikholsky.jwtauthstudy.controller.body.AuthenticationResponse;
+import me.mikholsky.jwtauthstudy.controller.body.TokenResponse;
 import me.mikholsky.jwtauthstudy.controller.body.RegistrationRequest;
 import me.mikholsky.jwtauthstudy.entity.Role;
 import me.mikholsky.jwtauthstudy.entity.User;
+import me.mikholsky.jwtauthstudy.repository.TokenRepository;
 import me.mikholsky.jwtauthstudy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.keyvalue.core.KeyValueTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +30,8 @@ public class AuthService {
     private JwtService jwtService;
 
     private AuthenticationManager authenticationManager;
+
+    private TokenRepository tokenRepository;
 
     @Autowired
     public AuthService setUserRepository(UserRepository userRepository) {
@@ -51,7 +57,20 @@ public class AuthService {
         return this;
     }
 
-    public AuthenticationResponse register(RegistrationRequest request) {
+    @Autowired
+    public AuthService setTokenRepository(TokenRepository tokenRepository) {
+        this.tokenRepository = tokenRepository;
+        return this;
+    }
+
+
+    /**
+     * Signing up new user in system and returns him a JWT token
+     *
+     * @param request class containing email and password
+     * @return <strong>token</strong> which user can send with request
+     */
+    public void register(RegistrationRequest request) {
         var user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -61,24 +80,29 @@ public class AuthService {
                 .build();
 
         userRepository.save(user);
-
-        var jwtToken = jwtService.generateToken(user);
-
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public TokenResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("No such user"));
 
-        var jwtToken = jwtService.generateToken(user);
+        var jwtToken = jwtService.generateToken(
+                Map.of("jti", UUID.randomUUID().toString()),
+                user
+        );
 
-        return AuthenticationResponse.builder()
+        var token = TokenResponse.builder()
+                .id(jwtService.extractId(jwtToken))
+                .token(jwtToken)
+                .build();
+
+        tokenRepository.save(token);
+
+
+        return TokenResponse.builder()
                 .token(jwtToken)
                 .build();
     }
