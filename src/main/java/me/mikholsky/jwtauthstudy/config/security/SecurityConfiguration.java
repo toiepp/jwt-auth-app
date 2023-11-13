@@ -20,14 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
-    private OncePerRequestJwtAuthenticationFilter jwtAuthFilter;
     private UserDetailsService userDetailsService;
-
-    @Autowired
-    public SecurityConfiguration setJwtAuthFilter(OncePerRequestJwtAuthenticationFilter jwtAuthFilter) {
-        this.jwtAuthFilter = jwtAuthFilter;
-        return this;
-    }
 
     @Autowired
     public SecurityConfiguration setUserDetailsService(UserDetailsService userDetailsService) {
@@ -40,15 +33,12 @@ public class SecurityConfiguration {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/api/v1/auth/**") // TODO something
-                        .permitAll()
                         .requestMatchers("/jwt/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

@@ -1,5 +1,6 @@
 package me.mikholsky.jwtauthstudy.service;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import me.mikholsky.jwtauthstudy.controller.body.AuthenticationRequest;
 import me.mikholsky.jwtauthstudy.controller.body.TokenResponse;
@@ -26,8 +27,6 @@ import java.util.UUID;
 public class AuthService {
     private UserRepository userRepository;
 
-    private PasswordEncoder passwordEncoder;
-
     private JwtService jwtService;
 
     private TokenRepository tokenRepository;
@@ -35,12 +34,6 @@ public class AuthService {
     @Autowired
     public AuthService setUserRepository(UserRepository userRepository) {
         this.userRepository = userRepository;
-        return this;
-    }
-
-    @Autowired
-    public AuthService setPasswordEncoder(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
         return this;
     }
 
@@ -54,18 +47,6 @@ public class AuthService {
     public AuthService setTokenRepository(TokenRepository tokenRepository) {
         this.tokenRepository = tokenRepository;
         return this;
-    }
-
-    public void register(RegistrationRequest request) {
-        var user = User.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
-                .build();
-
-        userRepository.save(user);
     }
 
     public TokenResponse authenticate(AuthenticationRequest request) {
@@ -90,7 +71,12 @@ public class AuthService {
     }
 
     public boolean verify(String token) {
-        var email = jwtService.extractUsername(token);
+        String email;
+        try {
+            email = jwtService.extractUsername(token);
+        } catch (ExpiredJwtException e) {
+            return false;
+        }
 
         var user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("No such user"));

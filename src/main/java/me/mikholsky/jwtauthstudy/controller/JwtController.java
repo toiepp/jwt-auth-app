@@ -4,10 +4,8 @@ import me.mikholsky.jwtauthstudy.controller.body.AuthenticationRequest;
 import me.mikholsky.jwtauthstudy.controller.dto.TokenDto;
 import me.mikholsky.jwtauthstudy.controller.dto.TokenVerificationDto;
 import me.mikholsky.jwtauthstudy.service.AuthService;
-import org.antlr.v4.runtime.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,11 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Controller for managing JWT
- */
 @RestController
-@RequestMapping("/jwt")
+@RequestMapping(value = "/jwt", produces = MediaType.APPLICATION_JSON_VALUE)
 public class JwtController {
     private AuthService authService;
 
@@ -40,7 +35,7 @@ public class JwtController {
         return ResponseEntity.ok(dto);
     }
 
-    @PostMapping(value = "/verify", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/verify")
     public ResponseEntity<TokenVerificationDto> verify(@RequestBody TokenDto tokenDto) {
         var validity = authService.verify(tokenDto.getToken());
 
