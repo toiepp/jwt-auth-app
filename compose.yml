@@ -8,7 +8,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - '8181:8181'
+      - '8282:8282'
     depends_on:
       - db
       - redis
@@ -28,7 +28,9 @@ services:
       retries: 5
       start_period: 10s
   redis:
-    image: redis:6.2-alpine
+    image: redis
+    volumes:
+      - ./infrastructure/redis/redis.conf:/usr/local/etc/redis/redis.conf
     restart: always
     ports:
       - '7279:6279'
