@@ -4,12 +4,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import me.mikholsky.jwtauthstudy.controller.body.TokenResponse;
 import me.mikholsky.jwtauthstudy.repository.TokenRepository;
 import me.mikholsky.jwtauthstudy.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.keyvalue.core.KeyValueTemplate;
-import org.springframework.data.keyvalue.core.query.KeyValueQuery;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,7 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.function.Consumer;
 
 @Component
 public class OncePerRequestJwtAuthenticationFilter extends OncePerRequestFilter {
@@ -27,8 +23,6 @@ public class OncePerRequestJwtAuthenticationFilter extends OncePerRequestFilter 
     private UserDetailsService userDetailsService;
 
     private TokenRepository tokenRepository;
-
-    private KeyValueTemplate keyValueTemplate;
 
     @Autowired
     public OncePerRequestJwtAuthenticationFilter setJwtService(JwtService jwtService) {

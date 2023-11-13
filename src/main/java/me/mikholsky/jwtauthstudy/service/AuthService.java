@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.Map;
 import java.util.UUID;
 
@@ -28,8 +29,6 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
 
     private JwtService jwtService;
-
-    private AuthenticationManager authenticationManager;
 
     private TokenRepository tokenRepository;
 
@@ -52,24 +51,11 @@ public class AuthService {
     }
 
     @Autowired
-    public AuthService setAuthenticationManager(AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
-        return this;
-    }
-
-    @Autowired
     public AuthService setTokenRepository(TokenRepository tokenRepository) {
         this.tokenRepository = tokenRepository;
         return this;
     }
 
-
-    /**
-     * Signing up new user in system and returns him a JWT token
-     *
-     * @param request class containing email and password
-     * @return <strong>token</strong> which user can send with request
-     */
     public void register(RegistrationRequest request) {
         var user = User.builder()
                 .firstName(request.getFirstName())
@@ -83,9 +69,6 @@ public class AuthService {
     }
 
     public TokenResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("No such user"));
 
@@ -101,9 +84,17 @@ public class AuthService {
 
         tokenRepository.save(token);
 
-
         return TokenResponse.builder()
                 .token(jwtToken)
                 .build();
+    }
+
+    public boolean verify(String token) {
+        var email = jwtService.extractUsername(token);
+
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("No such user"));
+
+        return jwtService.isTokenValid(token, user);
     }
 }
