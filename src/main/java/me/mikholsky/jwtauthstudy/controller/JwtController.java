@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/jwt", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -47,11 +44,12 @@ public class JwtController {
                     .message("Token is valid. Welcome!")
                     .build());
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(res.token(tokenDto.getToken())
-                            .status("NOT VALID")
-                            .message("Token is NOT valid.")
-                            .build());
+            var body = res.token(tokenDto.getToken())
+                    .status("INVALID")
+                    .message("Token is NOT valid. Reauthenticate, please!")
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
         }
     }
 }
