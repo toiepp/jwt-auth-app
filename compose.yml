@@ -1,8 +1,13 @@
 version: '3.8'
 
+networks:
+  practice6_main-net:
+    external: true
+
 services:
   server:
-    image: server:0.0.1
+    image: auth-server:0.0.1
+    container_name: auth-server
     restart: always
     build:
       context: .
@@ -10,27 +15,16 @@ services:
     ports:
       - '8282:8282'
     depends_on:
-      - db
       - redis
-  db:
-    image: postgres:16.0-alpine
-    restart: unless-stopped
-    ports:
-      - '5433:5432'
-    environment:
-      - POSTGRES_USER=dbuser
-      - POSTGRES_PASSWORD=dbpassword
-      - POSTGRES_DB=jwt_auth_app_db
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U dbuser -d jwt_auth_app_db" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
+    networks:
+      - practice6_main-net
   redis:
     image: redis
+    container_name: redis
     volumes:
       - ./infrastructure/redis/redis.conf:/usr/local/etc/redis/redis.conf
     restart: always
     ports:
       - '7279:6279'
+    networks:
+      - practice6_main-net
