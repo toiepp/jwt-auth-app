@@ -13,4 +13,5 @@ public class TokenVerificationDto {
     private String token;
     private String status;
     private String message;
+    private String email;
 }

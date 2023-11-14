@@ -14,6 +14,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - '8282:8282'
+    environment:
+      - JWT_VALIDITY_MILLIS=300000
     depends_on:
       - redis
     networks:
